@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audit Réseaux Sociaux - Natelo</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      color: #374151;
+    }
+
+    .presentation-container {
+      width: 100%;
+      max-width: 64rem;
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .slide {
+      display: none;
+      padding: 3rem;
+      min-height: 500px;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .slide.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .slide-title {
+      font-size: 2rem;
+      font-weight: bold;
+      margin-bottom: 1.5rem;
+      color: #16a34a;
+    }
+
+    .slide-title.warning {
+      color: #ca8a04;
+    }
+
+    .slide-subtitle {
+      font-size: 1.25rem;
+      color: #6b7280;
+      margin-bottom: 1.5rem;
+    }
+
+    .slide-content {
+      font-size: 1.125rem;
+      line-height: 1.7;
+    }
+
+    .slide-content ul {
+      list-style: none;
+      margin: 1.5rem 0;
+    }
+
+    .slide-content ol {
+      margin: 1.5rem 0;
+      padding-left: 1.5rem;
+    }
+
+    .slide-content li {
+      margin-bottom: 1rem;
+      padding-left: 1rem;
+      position: relative;
+    }
+
+    .slide-content ul li::before {
+      content: "•";
+      color: #16a34a;
+      font-weight: bold;
+      position: absolute;
+      left: 0;
+    }
+
+    .slide-content .font-semibold {
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .slide-image {
+      text-align: center;
+      margin: 2rem 0;
+    }
+
+    .slide-image img {
+      max-width: 300px;
+      height: 200px;
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      background: #f3f4f6;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #6b7280;
+      font-size: 0.875rem;
+    }
+
+    /* Chart Styles */
+    .chart-container {
+      display: flex;
+      justify-content: center;
+      margin: 2rem 0;
+    }
+
+    .doughnut-chart {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      position: relative;
+      background: conic-gradient(
+        #10b981 0deg 51.4deg,
+        #facc15 51.4deg 102.8deg,
+        #ef4444 102.8deg 154.2deg,
+        #3b82f6 154.2deg 205.6deg,
+        #8b5cf6 205.6deg 257deg,
+        #f97316 257deg 308.4deg,
+        #22d3ee 308.4deg 360deg
+      );
+    }
+
+    .doughnut-chart::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 150px;
+      height: 150px;
+      background: white;
+      border-radius: 50%;
+    }
+
+    .tiktok-chart {
+      background: conic-gradient(
+        #10b981 0deg 180deg,
+        #facc15 180deg 288deg,
+        #ef4444 288deg 360deg
+      );
+    }
+
+    .chart-legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 0.5rem;
+      margin-top: 1rem;
+      font-size: 0.875rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .legend-color {
+      width: 16px;
+      height: 16px;
+      border-radius: 2px;
+    }
+
+    /* Editorial Calendar Styles */
+    .calendar-table {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 4px;
+      background-color: #f9fafb;
+      padding: 8px;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+      font-size: 0.875rem;
+    }
+
+    .calendar-cell {
+      padding: 8px;
+      background-color: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      text-align: center;
+    }
+
+    .calendar-header {
+      font-weight: bold;
+      background-color: #16a34a;
+      color: white;
+    }
+
+    .navigation {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding: 1rem;
+    }
+
+    .nav-button {
+      background: #16a34a;
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 0.5rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .nav-button:hover:not(:disabled) {
+      background: #15803d;
+      transform: translateY(-1px);
+    }
+
+    .nav-button:disabled {
+      background: #d1d5db;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .slide-indicators {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .indicator {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #d1d5db;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .indicator.active {
+      background: #16a34a;
+      transform: scale(1.2);
+    }
+
+    .slide-counter {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 0.875rem;
+      color: #6b7280;
+    }
+
+    .title-slide {
+      text-align: center;
+    }
+
+    .title-slide .slide-title {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .title-slide .objective {
+      font-size: 1.125rem;
+      margin: 2rem 0;
+      padding: 1rem;
+      background: #f0fdf4;
+      border-radius: 0.5rem;
+      border-left: 4px solid #16a34a;
+    }
+
+    /* Background colors for different slide types */
+    .slide.strengths {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    }
+
+    .slide.improvements {
+      background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    }
+
+    .slide.recommendations {
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .slide {
+        padding: 1.5rem;
+      }
+
+      .slide-title {
+        font-size: 1.5rem;
+      }
+
+      .title-slide .slide-title {
+        font-size: 2rem;
+      }
+
+      .slide-content {
+        font-size: 1rem;
+      }
+
+      .calendar-table {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        font-size: 0.75rem;
+      }
+
+      .calendar-cell {
+        padding: 6px;
+      }
+
+      .navigation {
+        flex-direction: column;
+        gap: 1rem;
+      }
+
+      .nav-button {
+        padding: 0.5rem 1rem;
+        font-size: 0.75rem;
+      }
+
+      .doughnut-chart {
+        width: 250px;
+        height: 250px;
+      }
+
+      .doughnut-chart::after {
+        width: 125px;
+        height: 125px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="presentation-container">
+    <!-- Slide 1: Titre -->
+    <section class="slide active title-slide">
+      <h1 class="slide-title">Audit des réseaux sociaux pour Natelo</h1>
+      <h2 class="slide-subtitle">Analyse et recommandations pour Facebook, TikTok, Instagram, logo, flyers et absence de site web</h2>
+      <div class="objective">
+        <strong>Objectif :</strong> Améliorer la visibilité, l'engagement et l'image professionnelle
+      </div>
+      <div class="slide-image">
+        <img src="logo.jpg" alt="Logo Natelo">
+      </div>
+    </section>
+
+    <!-- Slide 2: Audit Facebook - Points forts -->
+    <section class="slide strengths">
+      <h2 class="slide-title">Points forts de la page Facebook</h2>
+      <div class="slide-content">
+        <ul>
+          <li><span class="font-semibold">Identité visuelle cohérente :</span> Visuels reflétant l'univers frais et coloré des salades de fruits.</li>
+          <li><span class="font-semibold">Informations de contact complètes :</span> Coordonnées claires pour les commandes.</li>
+          <li><span class="font-semibold">Témoignages clients :</span> Avis positifs renforçant la crédibilité.</li>
+        </ul>
+        <div class="slide-image">
+          <img src="facebook.png" alt="Visuel Facebook">
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 3: Audit Facebook - Axes d'amélioration -->
+    <section class="slide improvements">
+      <h2 class="slide-title warning">Axes d'amélioration de la page Facebook</h2>
+      <div class="slide-content">
+        <ul>
+          <li><span class="font-semibold">Fréquence de publication :</span> Publications irrégulières, impactant l'engagement.</li>
+          <li><span class="font-semibold">Utilisation des fonctionnalités :</span> Section "À propos" peu détaillée.</li>
+          <li><span class="font-semibold">Interactivité :</span> Réponses limitées aux commentaires, impression de faible engagement.</li>
+          <li><span class="font-semibold">Qualité non professionnelle :</span> Images de faible résolution, vidéos sans son clair et logo peu moderne, nuisant à l'image de marque.</li>
+        </ul>
+        <div class="slide-image">
+          <img src="facebook1.png" alt="Publication Facebook">
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 4: Audit Facebook - Recommandations -->
+    <section class="slide recommendations">
+      <h2 class="slide-title">Recommandations pour la page Facebook</h2>
+      <div class="slide-content">
+        <ul>
+          <li><span class="font-semibold">Planifier des publications régulières :</span> Calendrier éditorial avec posts hebdomadaires (produits, coulisses, témoignages).</li>
+          <li><span class="font-semibold">Optimiser la section "À propos" :</span> Description détaillée de l'entreprise, ses valeurs et services.</li>
+          <li><span class="font-semibold">Encourager l'interaction :</span> Répondre aux commentaires, poser des questions, organiser des concours.</li>
+          <li><span class="font-semibold">Améliorer la qualité visuelle :</span> Utiliser une caméra de qualité (ex. DSLR ou smartphone récent), un micro professionnel (ex. Rode SmartLav+) et refondre le logo avec un graphiste.</li>
+        </ul>
+        <div class="slide-image">
+          <img src="calendrier.png" alt="Calendrier Éditorial">
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 5: Audit TikTok - Points forts -->
+    <section class="slide strengths">
+      <h2 class="slide-title">Points forts du compte TikTok</h2>
+      <div class="slide-content">
+        <ul>
+          <li><span class="font-semibold">Contenu visuel attrayant :</span> Vidéos de salades colorées et appétissantes.</li>
+          <li><span class="font-semibold">Musiques tendance :</span> Utilisation de sons populaires pour augmenter la visibilité.</li>
+        </ul>
+        <div class="slide-image">
+          <img src="Tiktok.jpg" alt="Vidéo TikTok">
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 6: Audit TikTok - Axes d'amélioration -->
+    <section class="slide improvements">
+      <h2 class="slide-title warning">Axes d'amélioration du compte TikTok</h2>
+      <div class="slide-content">
+        <ul>
+          <li><span class="font-semibold">Manque de régularité :</span> Publications sporadiques, nuisant à la croissance.</li>
+          <li><span class="font-semibold">Engagement très faible :</span> Peu de commentaires et partages, bien en-dessous des benchmarks (ex. 1% vs 3,30% moyen).</li>
+          <li><span class="font-semibold">Absence de tendances :</span> Manque de participation aux challenges et hashtags populaires.</li>
+          <li><span class="font-semibold">Qualité non professionnelle :</span> Vidéos avec son de mauvaise qualité, résolution médiocre et logo peu professionnel.</li>
+        </ul>
+        <div class="slide-image">
+          <img src="TikTok1.jpg" alt="Graphique TikTok">
+        </div>
+      </div>
+    </section>
+    <section class="slide recommendations">
+      <h2 class="slide-title">Analyse et Recommandations pour TikTok </h2>
+      <div class="slide-content">
+        <p>Répartition recommandée des types de contenu pour booster un engagement actuellement très faible :</p>
+        <div class="chart-container">
+          <div class="doughnut-chart tiktok-chart"></div>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #10b981;"></div>
+            <span>Produits (50%)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #facc15;"></div>
+            <span>Coulisses (30%)</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #ef4444;"></div>
+            <span>Engagement (20%)</span>
+          </div>
+        </div>
+        <ul style="margin-top: 1rem;">
+          <li><span class="font-semibold">Produits (50%) :</span> Vidéos de salades et promotions pour attirer l'attention.</li>
+          <li><span class="font-semibold">Coulisses (30%) :</span> Préparation et équipe pour créer une connexion.</li>
+          <li><span class="font-semibold">Engagement (20%) :</span> Questions, challenges, lives pour stimuler l'interaction.</li>
+        </ul>
+        <p style="font-size: 0.875rem; margin-top: 1rem;">Engagement estimé : ~1% (bien en-dessous de la moyenne de 3,30%). Prioriser la régularité, la qualité (caméra HD, micro pro), et les hashtags (#Natelo, #Healthy).</p>
+      </div>
+    </section>
+  
+
+  
+
+    <!-- Slide 7: Audit TikTok - Recommandations -->
+    <section class="slide recommendations">
+      <h2 class="slide-title">Recommandations pour le compte TikTok</h2>
+      <div class="slide-content">
+        <ul>
+          <li><span class="font-semibold">Augmenter la fréquence :</span> Publier au moins 3 vidéos par semaine.</li>
+          <li><span class="font-semibold">Participer aux tendances :</span> Intégrer challenges et hashtags populaires (#Healthy, #Natelo).</li>
+          <li><span class="font-semibold">Encourager l'interaction :</span> Répondre activement aux commentaires, organiser des lives.</li>
+          <li><span class="font-semibold">Améliorer la qualité :</span> Investir dans une caméra (ex. smartphone haut de gamme), un micro professionnel (ex. Rode SmartLav+), une ring light et refondre le logo.</li>
+          <li><span class="font-semibold">Collaborer avec des influenceurs :</span> Travailler avec des créateurs locaux pour élargir l'audience.</li>
+        </ul>
+        <div class="slide-image">
+          <img src="fruit.jpg" alt="Collaboration TikTok">
+        </div>
+      </div>
+    </section>
+
+   <section class="slide strengths">
+      <h2 class="slide-title">Points forts du compte Instagram</h2>
+      <div class="slide-content">
+        <ul>
+          <li><span class="font-semibold">Esthétique visuelle :</span> Photos et stories mettant en avant des salades de fruits colorées et attrayantes.</li>
+          <li><span class="font-semibold">Utilisation des stories :</span> Publication de stories régulières montrant les produits et promotions.</li>
+          <li><span class="font-semibold">Lien de commande :</span> Présence d'un lien WhatsApp pour faciliter les commandes.</li>
+        </ul>
+        <div class="slide-image">
+          <img src="Instagram.jpg" alt="Visuel Instagram">
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 9: Audit Instagram - Axes d'amélioration -->
+    <section class="slide improvements">
+      <h2 class="slide-title warning">Axes d'amélioration du compte Instagram</h2>
+      <div class="slide-content">
+        <ul>
+          <li><span class="font-semibold">Fréquence des posts :</span> Publications irrégulières, réduisant la visibilité dans l'algorithme.</li>
+          <li><span class="font-semibold">Manque de contenu interactif :</span> Peu de reels ou de publications engageantes comme des sondages ou questions.</li>
+          <li><span class="font-semibold">Bio incomplète :</span> Description concise, manque de valeurs ou appel à l'action clair.</li>
+          <li><span class="font-semibold">Qualité non professionnelle :</span> Photos/vidéos de résolution variable, son médiocre, logo peu moderne (ex. Ramadan 2025).</li>
+          <li><span class="font-semibold">Diversité du contenu :</span> Mélange de produits et contenus hors sujet (ex. voiture, rue).</li>
+        </ul>
+        <div class="slide-image">
+          <img src="Instagram.jpg" alt="Publication Instagram">
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 10: Audit Instagram - Recommandations -->
+    <section class="slide recommendations">
+      <h2 class="slide-title">Recommandations pour le compte Instagram</h2>
+      <div class="slide-content">
+        <ul>
+          <li><span class="font-semibold">Publier régulièrement :</span> Viser 3 à 5 posts par semaine, incluant des reels.</li>
+          <li><span class="font-semibold">Créer du contenu interactif :</span> Utiliser reels, sondages et questions dans les stories.</li>
+          <li><span class="font-semibold">Optimiser la bio :</span> Ajouter une description détaillée, valeurs de marque, et lien Linktree/WhatsApp.</li>
+          <li><span class="font-semibold">Améliorer la qualité :</span> Utiliser une caméra HD (ex. iPhone 13), micro pro, CapCut, et refondre le logo.</li>
+          <li><span class="font-semibold">Filtrer le contenu :</span> Se concentrer sur les produits et coulisses, éviter les posts hors sujet.</li>
+        </ul>
+        <div class="slide-image">
+          <img src="fruit.jpg" alt="Reel Instagram">
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 11: Stratégie globale -->
+    <section class="slide recommendations">
+      <h2 class="slide-title">Stratégie globale pour améliorer la visibilité</h2>
+      <div class="slide-content">
+        <p>Sept piliers pour renforcer la présence de Natelo :</p>
+        <div class="chart-container">
+          <div class="doughnut-chart"></div>
+        </div>
+        <div class="chart-legend">
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #10b981;"></div>
+            <span>Identité de marque</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #facc15;"></div>
+            <span>Calendrier</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #ef4444;"></div>
+            <span>Analyse</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #3b82f6;"></div>
+            <span>Diversité contenu</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #8b5cf6;"></div>
+            <span>Multiplateforme</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #f97316;"></div>
+            <span>Landing page</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-color" style="background-color: #22d3ee;"></div>
+            <span>Qualité</span>
+          </div>
+        </div>
+        <ol style="margin-top: 1rem; font-size: 1rem;">
+          <li><span class="font-semibold">Identité de marque forte :</span> Nouveau logo par un graphiste.</li>
+          <li><span class="font-semibold">Calendrier de contenu :</span> Publications régulières.</li>
+          <li><span class="font-semibold">Outils d'analyse :</span> Suivi des performances.</li>
+          <li><span class="font-semibold">Diversifier le contenu :</span> Vidéos, témoignages, coulisses.</li>
+          <li><span class="font-semibold">Promotion multiplateforme :</span> Partage entre plateformes.</li>
+          <li><span class="font-semibold">Solution pour l'absence de site web :</span> Landing page (Linktree).</li>
+          <li><span class="font-semibold">Investir dans la qualité :</span> Caméra, micro, flyers pro.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- Slide 12: Calendrier Éditorial -->
+    <section class="slide recommendations">
+      <h2 class="slide-title">Calendrier Éditorial Hebdomadaire</h2>
+      <div class="slide-content">
+        <p>Planification régulière pour engager l'audience avec des contenus professionnels (produits, coulisses, témoignages).</p>
+        
+        <div class="calendar-table">
+          <div class="calendar-cell calendar-header">Jour</div>
+          <div class="calendar-cell calendar-header">Plateforme</div>
+          <div class="calendar-cell calendar-header">Type</div>
+          <div class="calendar-cell calendar-header">Contenu</div>
+          <div class="calendar-cell calendar-header">Détails</div>
+          
+          <div class="calendar-cell">Lundi</div>
+          <div class="calendar-cell">FB, IG</div>
+          <div class="calendar-cell">Produit</div>
+          <div class="calendar-cell">Photo salade exotique</div>
+          <div class="calendar-cell">HD, ring light, CTA commande</div>
+          
+          <div class="calendar-cell">Mardi</div>
+          <div class="calendar-cell">TikTok</div>
+          <div class="calendar-cell">Coulisses</div>
+          <div class="calendar-cell">Vidéo préparation</div>
+          <div class="calendar-cell">Micro pro, musique tendance</div>
+          
+          <div class="calendar-cell">Mercredi</div>
+          <div class="calendar-cell">FB, IG</div>
+          <div class="calendar-cell">Témoignage</div>
+          <div class="calendar-cell">Carrousel client</div>
+          <div class="calendar-cell">Photo nette, futur logo</div>
+          
+          <div class="calendar-cell">Jeudi</div>
+          <div class="calendar-cell">TikTok, IG</div>
+          <div class="calendar-cell">Produit</div>
+          <div class="calendar-cell">Reel salade</div>
+          <div class="calendar-cell">HD, musique populaire</div>
+          
+          <div class="calendar-cell">Vendredi</div>
+          <div class="calendar-cell">FB, IG</div>
+          <div class="calendar-cell">Engagement</div>
+          <div class="calendar-cell">Sondage salade</div>
+          <div class="calendar-cell">Visuel pro, story IG</div>
+          
+          <div class="calendar-cell">Samedi</div>
+          <div class="calendar-cell">TikTok</div>
+          <div class="calendar-cell">Engagement</div>
+          <div class="calendar-cell">Vidéo question</div>
+          <div class="calendar-cell">Éclairage, hashtags</div>
+          
+          <div class="calendar-cell">Dimanche</div>
+          <div class="calendar-cell">IG (story)</div>
+          <div class="calendar-cell">Coulisses</div>
+          <div class="calendar-cell">Story équipe</div>
+          <div class="calendar-cell">Lien Linktree</div>
+        </div>
+        
+        <p style="font-size: 0.875rem; margin-top: 1rem;"><strong>Qualité :</strong> Caméra HD, micro professionnel, montage via CapCut.</p>
+        
+        <div class="slide-image">
+          <img src="logo.jpg" alt="Exemple Post Natelo">
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 13: Conclusion -->
+    <section class="slide recommendations">
+      <h2 class="slide-title">Conclusion et prochaines étapes</h2>
+      <div class="slide-content">
+        <p><span class="font-semibold">Résumé :</span> Importance de la régularité, de l'interaction, d'une identité forte avec un logo moderne, de flyers professionnels, d'une présence centralisée et de contenus visuels/sonores de qualité.</p>
+        <p><span class="font-semibold">Prochaines étapes :</span> Refonte du logo, création de flyers par un professionnel, mise en place du calendrier éditorial, optimisation des profils, création d'une landing page, investissement dans du matériel, suivi des performances.</p>
+        <p>Invitation à discuter des priorités et du plan d'action.</p>
+        <div class="slide-image">
+          <img src="fruit.jpg" alt="Image Natelo">
+        </div>
+      </div>
+    </section>
+ </div>
+
+    <!-- Slide 14: Analyse TikTok Ajustée -->
+    
+    <!-- Navigation -->
+  <div class="navigation">
+    <button class="nav-button" onclick="prevSlide()" id="prevBtn">
+      ← Précédent
+    </button>
+    
+    <div class="slide-indicators" id="indicators">
+      <!-- Indicators will be generated by JavaScript -->
+    </div>
+    
+    <button class="nav-button" onclick="nextSlide()" id="nextBtn">
+      Suivant →
+    </button>
+  </div>
+
+  <div class="slide-counter">
+    Diapositive <span id="currentSlideNum">1</span> sur <span id="totalSlides">14</span>
+  </div>
+
+  <script>
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+
+    // Generate indicators
+    function generateIndicators() {
+      const indicatorsContainer = document.getElementById('indicators');
+      for (let i = 0; i < totalSlides; i++) {
+        const indicator = document.createElement('div');
+        indicator.className = 'indicator';
+        if (i === 0) indicator.classList.add('active');
+        indicator.onclick = () => goToSlide(i);
+        indicatorsContainer.appendChild(indicator);
+      }
+    }
+
+    function updateSlide() {
+      // Hide all slides
+      slides.forEach(slide => slide.classList.remove('active'));
+      
+      // Show current slide
+      slides[currentSlide].classList.add('active');
+      
+      // Update indicators
+      document.querySelectorAll('.indicator').forEach((indicator, index) => {
+        indicator.classList.toggle('active', index === currentSlide);
+      });
+      
+      // Update navigation buttons
+      document.getElementById('prevBtn').disabled = currentSlide === 0;
+      document.getElementById('nextBtn').disabled = currentSlide === totalSlides - 1;
+      
+      // Update counter
+      document.getElementById('currentSlideNum').textContent = currentSlide + 1;
+    }
+
+    function nextSlide() {
+      if (currentSlide < totalSlides - 1) {
+        currentSlide++;
+        updateSlide();
+      }
+    }
+
+    function prevSlide() {
+      if (currentSlide > 0) {
+        currentSlide--;
+        updateSlide();
+      }
+    }
+
+    function goToSlide(index) {
+      currentSlide = index;
+      updateSlide();
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight') nextSlide();
+      if (e.key === 'ArrowLeft') prevSlide();
+    });
+
+    // Initialize
+    generateIndicators();
+    updateSlide();
+    document.getElementById('totalSlides').textContent = totalSlides;
+  </script>
+</body>
+</html>
